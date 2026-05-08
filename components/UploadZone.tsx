@@ -91,7 +91,10 @@ export default function UploadZone({
     (file: File) => {
       setError(null);
 
-      if (!file.type.startsWith("image/")) {
+      const isImage =
+        file.type.startsWith("image/") ||
+        /\.(jpe?g|png|gif|webp|heic|heif|bmp|svg)$/i.test(file.name);
+      if (!isImage) {
         setError(strings.invalidFile);
         return;
       }
