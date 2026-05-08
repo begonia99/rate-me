@@ -72,14 +72,18 @@ export default function UploadZone({
 
   const usePhoto = useCallback(() => {
     if (!capturedImage) return;
-    // Convert base64 to File for the existing onFileSelect interface
-    fetch(capturedImage)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
-        onFileSelect(file, capturedImage);
-        setCapturedImage(null);
-      });
+    // Convert base64 to Blob directly (avoids fetch issues on some browsers)
+    const parts = capturedImage.split(",");
+    const byteString = atob(parts[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: "image/jpeg" });
+    const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+    onFileSelect(file, capturedImage);
+    setCapturedImage(null);
   }, [capturedImage, onFileSelect]);
 
   const retakePhoto = useCallback(() => {
