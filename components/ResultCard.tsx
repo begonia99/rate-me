@@ -23,27 +23,25 @@ interface LaughingCharacter {
   position: { top?: string; bottom?: string; left?: string; right?: string };
 }
 
-// Fixed slots around the speech bubble — no overlap with text or each other
-const SLOT_POSITIONS: Array<{ top?: string; bottom?: string; left?: string; right?: string }> = [
-  { top: "-40px", left: "-30px" },         // top-left
-  { top: "-40px", right: "-30px" },        // top-right
-  { bottom: "-40px", left: "-30px" },      // bottom-left
-  { bottom: "-40px", right: "-30px" },     // bottom-right
-  { top: "50%", left: "-60px" },           // mid-left
-  { top: "50%", right: "-60px" },          // mid-right
+// 3 fixed slots: main (top-left), sub (top-right), sub (bottom-left)
+const SLOT_POSITIONS: Array<{ top?: string; bottom?: string; left?: string; right?: string; isMain: boolean }> = [
+  { top: "-20px", left: "-16px", isMain: true },    // main: top-left
+  { top: "-12px", right: "-8px", isMain: false },   // sub: top-right (inside bounds)
+  { bottom: "-20px", left: "-16px", isMain: false }, // sub: bottom-left
 ];
 
 function generateLaughingPositions(): LaughingCharacter[] {
   const shuffled = [...laughingVideos].sort(() => Math.random() - 0.5);
-  const slots = [...SLOT_POSITIONS].sort(() => Math.random() - 0.5);
-  const count = Math.min(3 + Math.floor(Math.random() * 3), slots.length);
-  return shuffled.slice(0, count).map((src, i) => ({
-    src,
-    delay: i * 0.3,
-    size: 80 + Math.random() * 30,
-    rotation: (Math.random() - 0.5) * 20,
-    position: slots[i],
-  }));
+  return SLOT_POSITIONS.map((slot, i) => {
+    const { isMain, ...position } = slot;
+    return {
+      src: shuffled[i % shuffled.length],
+      delay: i * 0.25,
+      size: isMain ? 88 : 56,
+      rotation: (Math.random() - 0.5) * 15,
+      position,
+    };
+  });
 }
 
 export default function ResultCard({
@@ -131,99 +129,103 @@ export default function ResultCard({
     );
   }
 
-  // Roast mode: chaotic layout
+  // Roast mode: structured chaos layout, vertically centered
   return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      <h2 className="mb-4 text-xl font-bold text-gray-900">
-        {strings.resultTitle}
-      </h2>
+    <div className="flex min-h-[calc(100vh-120px)] w-full items-center justify-center">
+      <div className="relative w-full max-w-md mx-auto px-4">
+        {/* Title — above card with enough margin to avoid avatar overlap */}
+        <h2 className="relative z-30 mb-6 text-center text-xl font-bold text-gray-900">
+          {strings.roastResultTitle}
+        </h2>
 
-      {/* Speech bubble with text + CTA inside */}
-      <div className="relative z-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <p className="whitespace-pre-wrap text-left text-gray-700 leading-relaxed">
-          {text}
-        </p>
+        {/* Card with everything inside */}
+        <div className="relative z-10 overflow-visible rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          {/* Roast text */}
+          <p className="whitespace-pre-wrap text-left text-gray-700 leading-relaxed">
+            {text}
+          </p>
 
-        {/* CTA inside bubble */}
-        <a
-          href={kokoInstallLink}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
-        >
-          <img src={kokoAppIcon} alt="koko" className="h-5 w-5 rounded" />
-          {strings.roastCta}
-        </a>
-      </div>
+          {/* Divider */}
+          <hr className="my-4 border-gray-100" />
 
-      {/* Laughing character videos — positioned around the bubble edges */}
-      {showLaughing &&
-        laughingChars.map((char, i) => (
-          <video
-            key={i}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="pointer-events-none absolute rounded-full animate-bounce-fade"
-            style={{
-              ...char.position,
-              width: char.size,
-              height: char.size,
-              objectFit: "cover",
-              animationDelay: `${char.delay}s`,
-              transform: `rotate(${char.rotation}deg)`,
-              zIndex: 20,
-            }}
+          {/* Primary CTA */}
+          <a
+            href={kokoInstallLink}
+            className="flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition-colors"
+            style={{ backgroundColor: "#FF6B8A" }}
           >
-            <source src={char.src} type="video/mp4" />
-          </video>
-        ))}
+            <img src={kokoAppIcon} alt="koko" className="h-5 w-5 rounded" />
+            {strings.roastCta}
+          </a>
 
-      {/* Bottom row: try again, share, koko icon */}
-      <div className="relative z-10 mt-6 flex items-center justify-center gap-3">
-        <button
-          onClick={onTryAgain}
-          className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-colors ${
-            isKoko
-              ? "bg-[#FF6B8A] text-white hover:bg-[#e55a79]"
-              : "bg-gray-900 text-white hover:bg-gray-700"
-          }`}
-        >
-          {strings.tryAgain}
-        </button>
-        <button
-          onClick={onShare}
-          className="rounded-full border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-        >
-          {strings.share}
-        </button>
-      </div>
+          {/* Secondary CTAs */}
+          <div className="mt-3 flex justify-center gap-2">
+            <button
+              onClick={onTryAgain}
+              className="rounded-full border border-gray-200 bg-gray-50 px-5 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100"
+            >
+              {strings.tryAgain}
+            </button>
+            <button
+              onClick={onShare}
+              className="rounded-full border border-gray-200 bg-gray-50 px-5 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100"
+            >
+              {strings.share}
+            </button>
+          </div>
+        </div>
 
-      <style jsx>{`
-        @keyframes bounce-fade {
-          0% {
+        {/* Laughing character videos — 3 avatars with size hierarchy */}
+        {showLaughing &&
+          laughingChars.map((char, i) => (
+            <video
+              key={i}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="pointer-events-none absolute rounded-full animate-bounce-fade"
+              style={{
+                ...char.position,
+                width: char.size,
+                height: char.size,
+                objectFit: "cover",
+                animationDelay: `${char.delay}s`,
+                transform: `rotate(${char.rotation}deg)`,
+                zIndex: 20,
+              }}
+            >
+              <source src={char.src} type="video/mp4" />
+            </video>
+          ))}
+
+        <style jsx>{`
+          @keyframes bounce-fade {
+            0% {
+              opacity: 0;
+              transform: scale(0.3);
+            }
+            30% {
+              opacity: 1;
+              transform: scale(1.1);
+            }
+            50% {
+              transform: scale(0.95);
+            }
+            70% {
+              transform: scale(1.05);
+            }
+            100% {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+          :global(.animate-bounce-fade) {
+            animation: bounce-fade 0.6s ease-out forwards;
             opacity: 0;
-            transform: scale(0.3) rotate(var(--rotation, 0deg));
           }
-          30% {
-            opacity: 1;
-            transform: scale(1.15) rotate(var(--rotation, 0deg));
-          }
-          50% {
-            transform: scale(0.9) rotate(var(--rotation, 0deg));
-          }
-          70% {
-            transform: scale(1.05) rotate(var(--rotation, 0deg));
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) rotate(var(--rotation, 0deg));
-          }
-        }
-        :global(.animate-bounce-fade) {
-          animation: bounce-fade 0.6s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
+        `}</style>
+      </div>
     </div>
   );
 }

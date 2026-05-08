@@ -20,7 +20,7 @@ export default function VersionToggle({
         className={`rounded-full px-3 py-1 transition-colors ${
           !isKoko
             ? "bg-white font-semibold text-gray-900 shadow-sm"
-            : "text-gray-500 hover:text-gray-700"
+            : "text-gray-400 hover:text-gray-500"
         }`}
       >
         {strings.basic}
@@ -30,7 +30,7 @@ export default function VersionToggle({
         className={`rounded-full px-3 py-1 transition-colors ${
           isKoko
             ? "bg-white font-semibold shadow-sm"
-            : "text-gray-500 hover:text-gray-700"
+            : "text-gray-400 hover:text-gray-500"
         }`}
         style={isKoko ? { color: "#FF6B8A" } : {}}
       >

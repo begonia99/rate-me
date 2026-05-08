@@ -22,6 +22,7 @@ const strings = {
   shareCtaToast: "Wanna know more? \u2728",
   kokoInstall: "Try koko App",
   resultTitle: "Your Evaluation",
+  roastResultTitle: "You Got Roasted \uD83D\uDD25",
   shareTitle: "Made with Rate Me",
   copyLink: "Copy Link",
   copiedLink: "Copied!",
