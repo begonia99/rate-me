@@ -24,19 +24,26 @@ interface LaughingCharacter {
   position: { top?: string; bottom?: string; left?: string; right?: string };
 }
 
-// Generate positions around the card edges without overlapping each other
+// Generate positions around card: left, right, bottom edges + corners (no top edge)
 function generateLaughingPositions(): LaughingCharacter[] {
   const shuffled = [...laughingVideos].sort(() => Math.random() - 0.5);
-  const count = 3 + Math.floor(Math.random() * 4); // 3-6
+  const count = 3 + Math.floor(Math.random() * 2); // 3-4
 
-  // Candidate zones around the card (percentage-based offsets from card edges)
   const zones = [
-    () => ({ top: `${-30 - Math.random() * 20}px`, left: `${Math.random() * 40}%` }),
-    () => ({ top: `${-30 - Math.random() * 20}px`, right: `${Math.random() * 40}%` }),
-    () => ({ bottom: `${-30 - Math.random() * 20}px`, left: `${Math.random() * 40}%` }),
-    () => ({ bottom: `${-30 - Math.random() * 20}px`, right: `${Math.random() * 40}%` }),
+    // Top-left corner
+    () => ({ top: `${-30 - Math.random() * 20}px`, left: `${-30 - Math.random() * 20}px` }),
+    // Top-right corner
+    () => ({ top: `${-30 - Math.random() * 20}px`, right: `${-30 - Math.random() * 20}px` }),
+    // Left edge
     () => ({ top: `${20 + Math.random() * 40}%`, left: `${-40 - Math.random() * 20}px` }),
+    // Right edge
     () => ({ top: `${20 + Math.random() * 40}%`, right: `${-40 - Math.random() * 20}px` }),
+    // Bottom edge
+    () => ({ bottom: `${-30 - Math.random() * 20}px`, left: `${20 + Math.random() * 30}%` }),
+    // Bottom-left corner
+    () => ({ bottom: `${-30 - Math.random() * 20}px`, left: `${-30 - Math.random() * 20}px` }),
+    // Bottom-right corner
+    () => ({ bottom: `${-30 - Math.random() * 20}px`, right: `${-30 - Math.random() * 20}px` }),
   ];
 
   const shuffledZones = [...zones].sort(() => Math.random() - 0.5);
@@ -129,6 +136,11 @@ export default function ResultCard({
   const [laughingKey, setLaughingKey] = useState(0);
   const laughingChars = useMemo(
     () => (isRoast ? generateLaughingPositions() : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isRoast, laughingKey]
+  );
+  const roastCta = useMemo(
+    () => (isRoast ? strings.roastCta[Math.floor(Math.random() * strings.roastCta.length)] : ""),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isRoast, laughingKey]
   );
@@ -254,7 +266,7 @@ export default function ResultCard({
             style={{ backgroundColor: "#FF6B8A" }}
           >
             <img src={kokoAppIcon} alt="koko" className="h-5 w-5 rounded" />
-            {strings.roastCta}
+            {roastCta}
           </a>
 
           {/* Secondary CTAs */}

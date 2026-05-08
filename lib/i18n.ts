@@ -17,7 +17,11 @@ const strings = {
   toastDesc: "Lavish compliments, over-the-top flattery",
   roast: "Roast me",
   roastDesc: "Brutal, funny roast",
-  roastCta: "Salty? Come find me \u2728",
+  roastCta: [
+    "Salty? Come find me \u2728",
+    "Mad? Come at me \uD83D\uDE0F",
+    "Triggered? Click me \uD83D\uDE0F",
+  ],
   shareCtaRoast: "Curious? Click me \u2728",
   shareCtaToast: "Wanna know more? \u2728",
   kokoInstall: "Try koko App",
