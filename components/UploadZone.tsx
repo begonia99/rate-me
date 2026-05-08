@@ -131,6 +131,8 @@ export default function UploadZone({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) processFile(file);
+    // Reset so selecting the same file triggers onChange again
+    e.target.value = "";
   };
 
   // Cleanup camera on unmount

@@ -24,25 +24,30 @@ interface LaughingCharacter {
   position: { top?: string; bottom?: string; left?: string; right?: string };
 }
 
-// 3 fixed slots: main (top-left), sub (top-right), sub (bottom-left)
-const SLOT_POSITIONS: Array<{ top?: string; bottom?: string; left?: string; right?: string; isMain: boolean }> = [
-  { top: "-20px", left: "-16px", isMain: true },    // main: top-left
-  { top: "-12px", right: "-8px", isMain: false },   // sub: top-right (inside bounds)
-  { bottom: "-20px", left: "-16px", isMain: false }, // sub: bottom-left
-];
-
+// Generate positions around the card edges without overlapping each other
 function generateLaughingPositions(): LaughingCharacter[] {
   const shuffled = [...laughingVideos].sort(() => Math.random() - 0.5);
-  return SLOT_POSITIONS.map((slot, i) => {
-    const { isMain, ...position } = slot;
-    return {
-      src: shuffled[i % shuffled.length],
-      delay: i * 0.25 + Math.random() * 0.3,
-      size: isMain ? 88 : 56,
-      rotation: (Math.random() - 0.5) * 15,
-      position,
-    };
-  });
+  const count = 3 + Math.floor(Math.random() * 4); // 3-6
+
+  // Candidate zones around the card (percentage-based offsets from card edges)
+  const zones = [
+    () => ({ top: `${-30 - Math.random() * 20}px`, left: `${Math.random() * 40}%` }),
+    () => ({ top: `${-30 - Math.random() * 20}px`, right: `${Math.random() * 40}%` }),
+    () => ({ bottom: `${-30 - Math.random() * 20}px`, left: `${Math.random() * 40}%` }),
+    () => ({ bottom: `${-30 - Math.random() * 20}px`, right: `${Math.random() * 40}%` }),
+    () => ({ top: `${20 + Math.random() * 40}%`, left: `${-40 - Math.random() * 20}px` }),
+    () => ({ top: `${20 + Math.random() * 40}%`, right: `${-40 - Math.random() * 20}px` }),
+  ];
+
+  const shuffledZones = [...zones].sort(() => Math.random() - 0.5);
+
+  return Array.from({ length: Math.min(count, shuffledZones.length) }, (_, i) => ({
+    src: shuffled[i % shuffled.length],
+    delay: i * 0.25 + Math.random() * 0.3,
+    size: 50 + Math.floor(Math.random() * 45), // 50-94px
+    rotation: (Math.random() - 0.5) * 20,
+    position: shuffledZones[i](),
+  }));
 }
 
 function getRandomHeroVideo(): string {

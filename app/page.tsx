@@ -89,7 +89,6 @@ export default function Home() {
     if (isMobile && navigator.share) {
       navigator.share({
         title: "Rate Me",
-        text: result.text,
         url: shareUrl,
       }).catch(() => {});
     } else {
