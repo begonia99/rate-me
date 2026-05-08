@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import confetti from "canvas-confetti";
 import { Concept } from "@/lib/prompts";
 import { kokoAppIcon, kokoInstallLink, laughingVideos } from "@/lib/constants";
 import { I18nStrings } from "@/lib/i18n";
@@ -36,12 +37,77 @@ function generateLaughingPositions(): LaughingCharacter[] {
     const { isMain, ...position } = slot;
     return {
       src: shuffled[i % shuffled.length],
-      delay: i * 0.25,
+      delay: i * 0.25 + Math.random() * 0.3,
       size: isMain ? 88 : 56,
       rotation: (Math.random() - 0.5) * 15,
       position,
     };
   });
+}
+
+function getRandomHeroVideo(): string {
+  return laughingVideos[Math.floor(Math.random() * laughingVideos.length)];
+}
+
+function LaughingAvatar({ char, onRemove }: { char: LaughingCharacter; onRemove: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
+  const [removed, setRemoved] = useState(false);
+
+  // Stagger entrance: wait for char.delay, then fade in and start playing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(true);
+      videoRef.current?.play().catch(() => {});
+    }, char.delay * 1000);
+    return () => clearTimeout(timer);
+  }, [char.delay]);
+
+  const handleEnded = useCallback(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+    confetti({
+      particleCount: 40,
+      spread: 70,
+      startVelocity: 25,
+      origin: { x, y },
+      colors: ["#FF6B9D", "#FFB6C1", "#FF1744", "#FFD700"],
+    });
+    setFadingOut(true);
+    setTimeout(() => {
+      setRemoved(true);
+      onRemove();
+    }, 300);
+  }, [onRemove]);
+
+  if (removed) return null;
+
+  return (
+    <video
+      ref={videoRef}
+      muted
+      playsInline
+      preload="auto"
+      onEnded={handleEnded}
+      className="pointer-events-none absolute rounded-full"
+      style={{
+        ...char.position,
+        width: char.size,
+        height: char.size,
+        objectFit: "cover" as const,
+        transform: `rotate(${char.rotation}deg) scale(${visible && !fadingOut ? 1 : 0.8})`,
+        zIndex: 20,
+        opacity: fadingOut ? 0 : visible ? 1 : 0,
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+      }}
+    >
+      <source src={char.src} type="video/mp4" />
+    </video>
+  );
 }
 
 export default function ResultCard({
@@ -55,9 +121,16 @@ export default function ResultCard({
 }: ResultCardProps) {
   const isRoast = concept === "roast";
   const [showLaughing, setShowLaughing] = useState(false);
+  const [laughingKey, setLaughingKey] = useState(0);
   const laughingChars = useMemo(
     () => (isRoast ? generateLaughingPositions() : []),
-    [isRoast]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isRoast, laughingKey]
+  );
+  const heroVideo = useMemo(
+    () => (isRoast ? getRandomHeroVideo() : ""),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isRoast, laughingKey]
   );
 
   useEffect(() => {
@@ -65,7 +138,13 @@ export default function ResultCard({
       const timer = setTimeout(() => setShowLaughing(true), 300);
       return () => clearTimeout(timer);
     }
-  }, [isRoast]);
+  }, [isRoast, laughingKey]);
+
+  const handleTryAgainWithReset = () => {
+    setShowLaughing(false);
+    setLaughingKey((k) => k + 1);
+    onTryAgain();
+  };
 
   // Toast mode: unchanged layout
   if (!isRoast) {
@@ -129,12 +208,27 @@ export default function ResultCard({
     );
   }
 
-  // Roast mode: structured chaos layout, vertically centered
+  // Roast mode: structured chaos layout
   return (
-    <div className="flex min-h-[calc(100vh-120px)] w-full items-center justify-center">
+    <div className="w-full">
       <div className="relative w-full max-w-md mx-auto px-4">
-        {/* Title — above card with enough margin to avoid avatar overlap */}
-        <h2 className="relative z-30 mb-6 text-center text-xl font-bold text-gray-900">
+        {/* Hero video — looping, 80% width */}
+        <div className="mx-auto mb-6 w-4/5 overflow-hidden rounded-2xl">
+          <video
+            key={`hero-${laughingKey}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full object-cover"
+            style={{ aspectRatio: "4/3" }}
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+        </div>
+
+        {/* Title */}
+        <h2 className="relative z-30 mb-4 text-center text-xl font-bold text-gray-900">
           {strings.roastResultTitle}
         </h2>
 
@@ -161,7 +255,7 @@ export default function ResultCard({
           {/* Secondary CTAs */}
           <div className="mt-3 flex justify-center gap-2">
             <button
-              onClick={onTryAgain}
+              onClick={handleTryAgainWithReset}
               className="rounded-full border border-gray-200 bg-gray-50 px-5 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100"
             >
               {strings.tryAgain}
@@ -175,56 +269,16 @@ export default function ResultCard({
           </div>
         </div>
 
-        {/* Laughing character videos — 3 avatars with size hierarchy */}
+        {/* Laughing character videos — 3 avatars with size hierarchy, pop on end */}
         {showLaughing &&
           laughingChars.map((char, i) => (
-            <video
-              key={i}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="pointer-events-none absolute rounded-full animate-bounce-fade"
-              style={{
-                ...char.position,
-                width: char.size,
-                height: char.size,
-                objectFit: "cover",
-                animationDelay: `${char.delay}s`,
-                transform: `rotate(${char.rotation}deg)`,
-                zIndex: 20,
-              }}
-            >
-              <source src={char.src} type="video/mp4" />
-            </video>
+            <LaughingAvatar
+              key={`${laughingKey}-${i}`}
+              char={char}
+              onRemove={() => {}}
+            />
           ))}
 
-        <style jsx>{`
-          @keyframes bounce-fade {
-            0% {
-              opacity: 0;
-              transform: scale(0.3);
-            }
-            30% {
-              opacity: 1;
-              transform: scale(1.1);
-            }
-            50% {
-              transform: scale(0.95);
-            }
-            70% {
-              transform: scale(1.05);
-            }
-            100% {
-              opacity: 1;
-              transform: scale(1);
-            }
-          }
-          :global(.animate-bounce-fade) {
-            animation: bounce-fade 0.6s ease-out forwards;
-            opacity: 0;
-          }
-        `}</style>
       </div>
     </div>
   );

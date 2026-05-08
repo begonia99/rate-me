@@ -18,6 +18,10 @@ export const laughingVideos = [
   "/placeholders/laughing-4.mp4",
   "/placeholders/laughing-5.mp4",
   "/placeholders/laughing-6.mp4",
+  "/placeholders/laughing-7.mp4",
+  "/placeholders/laughing-8.mp4",
+  "/placeholders/laughing-9.mp4",
+  "/placeholders/laughing-10.mp4",
 ];
 
 export const bowingCharacterImage = "/placeholders/bowing-character.png";
