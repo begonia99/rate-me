@@ -267,17 +267,17 @@ export default function ResultCard({
               {strings.share}
             </button>
           </div>
-        </div>
 
-        {/* Laughing character videos — 3 avatars with size hierarchy, pop on end */}
-        {showLaughing &&
-          laughingChars.map((char, i) => (
-            <LaughingAvatar
-              key={`${laughingKey}-${i}`}
-              char={char}
-              onRemove={() => {}}
-            />
-          ))}
+          {/* Laughing character videos — around the card, pop on end */}
+          {showLaughing &&
+            laughingChars.map((char, i) => (
+              <LaughingAvatar
+                key={`${laughingKey}-${i}`}
+                char={char}
+                onRemove={() => {}}
+              />
+            ))}
+        </div>
 
       </div>
     </div>
