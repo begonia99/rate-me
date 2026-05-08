@@ -1,0 +1,11 @@
+<!-- TODO: replace with actual bowing character asset -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <circle cx="100" cy="60" r="35" fill="#FEF3C7" stroke="#D1D5DB" stroke-width="2"/>
+  <circle cx="88" cy="55" r="3" fill="#6B7280"/>
+  <circle cx="112" cy="55" r="3" fill="#6B7280"/>
+  <path d="M92 68 Q100 74 108 68" stroke="#6B7280" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M70 95 Q100 110 130 95 L125 160 Q100 170 75 160 Z" fill="#E5E7EB" stroke="#D1D5DB" stroke-width="2"/>
+  <path d="M70 95 L45 130" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"/>
+  <path d="M130 95 L155 130" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"/>
+  <text x="100" y="190" text-anchor="middle" font-size="12" fill="#9CA3AF" font-family="sans-serif">placeholder</text>
+</svg>

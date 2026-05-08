@@ -1,0 +1,8 @@
+<!-- TODO: replace with actual laughing character GIF/image -->
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="45" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+  <path d="M28 38 Q35 32 42 38" stroke="#92400E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M58 38 Q65 32 72 38" stroke="#92400E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="50" cy="62" rx="18" ry="12" fill="#92400E"/>
+  <ellipse cx="50" cy="58" rx="14" ry="6" fill="white"/>
+</svg>

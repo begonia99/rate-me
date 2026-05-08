@@ -1,0 +1,9 @@
+<!-- TODO: replace with actual laughing character GIF/image -->
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="45" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+  <circle cx="35" cy="40" r="5" fill="#92400E"/>
+  <circle cx="65" cy="40" r="5" fill="#92400E"/>
+  <path d="M30 60 Q50 80 70 60" stroke="#92400E" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <line x1="25" y1="35" x2="32" y2="30" stroke="#92400E" stroke-width="2" stroke-linecap="round"/>
+  <line x1="75" y1="35" x2="68" y2="30" stroke="#92400E" stroke-width="2" stroke-linecap="round"/>
+</svg>
